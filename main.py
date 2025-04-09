@@ -1,10 +1,3 @@
-# Riscrittura del main.py con:
-# - log di debug
-# - uso di ilike per evitare problemi di case sensitivity
-# - gestione eccezioni con messaggi chiari
-# - endpoint /dump per ispezione visiva
-
-main_debug = """
 from flask import Flask, request, jsonify
 from supabase import create_client
 import fitz  # PyMuPDF
@@ -22,7 +15,7 @@ TABELLA = "tabella"
 @app.route("/get_bilancio", methods=["GET"])
 def get_bilancio():
     try:
-        azienda = request.args.get("azienda")
+        azienda = request.args.get("Azienda")
         categoria = request.args.get("categoria", "Bilancio")
 
         print(f"[DEBUG] Parametri ricevuti: azienda={azienda}, categoria={categoria}")
@@ -69,10 +62,3 @@ def dump_tabella():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=3000)
-"""
-
-# Salvataggio su file
-with open("/mnt/data/main_debug.py", "w", encoding="utf-8") as f:
-    f.write(main_debug)
-
-"/mnt/data/main_debug.py"
