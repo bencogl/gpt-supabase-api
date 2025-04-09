@@ -19,7 +19,7 @@ def get_bilancio():
     if not azienda:
         return jsonify({"errore": "Manca azienda"}), 400
 
-    query = supabase.table(tabella).select("*").eq("Azienda", azienda).eq("categoria", categoria).execute()
+    query = supabase.table("tabella").select("*").eq("Azienda", azienda).eq("categoria", categoria).execute()
     if not query.data:
         return jsonify({"errore": "Documento non trovato"}), 404
 
