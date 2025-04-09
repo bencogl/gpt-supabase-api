@@ -15,7 +15,7 @@ TABELLA = "tabella"
 @app.route("/get_bilancio", methods=["GET"])
 def get_bilancio():
     try:
-        azienda = request.args.get("Azienda")
+        azienda = request.args.get("azienda")
         categoria = request.args.get("categoria", "Bilancio")
 
         print(f"[DEBUG] Parametri ricevuti: azienda={azienda}, categoria={categoria}")
