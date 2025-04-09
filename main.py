@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, make_response
 from flask_cors import CORS
 from supabase import create_client
 import fitz  # PyMuPDF
@@ -52,11 +52,14 @@ def get_bilancio():
         testo = "".join([page.get_text() for page in doc])
         doc.close()
 
-        return jsonify({
+        
+        response = make_response(jsonify({
             "azienda": azienda,
             "categoria": categoria,
             "contenuto": testo[:4000]
-        })
+        }), 200)
+        response.headers["Content-Type"] = "application/json"
+        return response
 
     except Exception as e:
         print("[ERROR]", traceback.format_exc())
