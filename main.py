@@ -1,8 +1,15 @@
+# Riscrittura del main.py con:
+# - log di debug
+# - uso di ilike per evitare problemi di case sensitivity
+# - gestione eccezioni con messaggi chiari
+# - endpoint /dump per ispezione visiva
 
+main_debug = """
 from flask import Flask, request, jsonify
 from supabase import create_client
 import fitz  # PyMuPDF
 import tempfile
+import traceback
 
 SUPABASE_URL = "https://yamgofgwqbytmriukcnv.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhbWdvZmd3cWJ5dG1yaXVrY252Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQxODc1NDksImV4cCI6MjA1OTc2MzU0OX0._ppBZ2rBIE80NGeVR-MtG1HVBVHNzBdu0925-j52rxg"
@@ -14,32 +21,58 @@ TABELLA = "tabella"
 
 @app.route("/get_bilancio", methods=["GET"])
 def get_bilancio():
-    azienda = request.args.get("azienda")
-    categoria = request.args.get("categoria", "bilancio")
-    if not azienda:
-        return jsonify({"errore": "Manca azienda"}), 400
+    try:
+        azienda = request.args.get("azienda")
+        categoria = request.args.get("categoria", "Bilancio")
 
-    query = supabase.table("tabella").select("*").eq("Azienda", azienda).eq("categoria", categoria).execute()
-    if not query.data:
-        return jsonify({"errore": "Documento non trovato"}), 404
+        print(f"[DEBUG] Parametri ricevuti: azienda={azienda}, categoria={categoria}")
 
-    file_info = query.data[0]
-    file_path = file_info["path"]
-    file_data = supabase.storage.from_(BUCKET).download(file_path)
+        if not azienda:
+            return jsonify({"errore": "Parametro 'azienda' mancante"}), 400
 
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp:
-        temp.write(file_data)
-        temp_path = temp.name
+        query = supabase.table(TABELLA).select("*").ilike("Azienda", azienda).ilike("categoria", categoria).execute()
+        print(f"[DEBUG] Risultato query: {query.data}")
 
-    doc = fitz.open(temp_path)
-    testo = "".join([page.get_text() for page in doc])
-    doc.close()
+        if not query.data:
+            return jsonify({"errore": "Documento non trovato"}), 404
 
-    return jsonify({
-        "azienda": azienda,
-        "categoria": categoria,
-        "contenuto": testo[:4000]
-    })
+        file_info = query.data[0]
+        file_path = file_info["path"]
+        print(f"[DEBUG] path del file: {file_path}")
+
+        file_data = supabase.storage.from_(BUCKET).download(file_path)
+
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp:
+            temp.write(file_data)
+            temp_path = temp.name
+
+        doc = fitz.open(temp_path)
+        testo = "".join([page.get_text() for page in doc])
+        doc.close()
+
+        return jsonify({
+            "azienda": azienda,
+            "categoria": categoria,
+            "contenuto": testo[:4000]
+        })
+
+    except Exception as e:
+        print("[ERROR]", traceback.format_exc())
+        return jsonify({"errore": str(e)}), 500
+
+
+@app.route("/dump", methods=["GET"])
+def dump_tabella():
+    query = supabase.table(TABELLA).select("*").execute()
+    return jsonify(query.data)
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=3000)
+"""
+
+# Salvataggio su file
+with open("/mnt/data/main_debug.py", "w", encoding="utf-8") as f:
+    f.write(main_debug)
+
+"/mnt/data/main_debug.py"
