@@ -33,7 +33,10 @@ def get_bilancio():
         file_path = file_info["path"]
         print(f"[DEBUG] path del file: {file_path}")
 
-        file_data = supabase.storage.from_(BUCKET).download(file_path)
+        # Rimuove il prefisso \"benchbila/\" se presente
+        clean_path = file_path.replace(\"benchbila/\", \"\")
+        file_data = supabase.storage.from_(BUCKET).download(clean_path)
+
 
         with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp:
             temp.write(file_data)
