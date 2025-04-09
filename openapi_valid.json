@@ -1,0 +1,70 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Analisi Bilanci GPT",
+    "description": "API per leggere e analizzare documenti PDF aziendali da Supabase",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://gpt-supabase-api.onrender.com"
+    }
+  ],
+  "paths": {
+    "/get_bilancio": {
+      "get": {
+        "operationId": "get_bilancio",
+        "summary": "Estrai contenuto testuale da un bilancio PDF",
+        "parameters": [
+          {
+            "name": "azienda",
+            "in": "query",
+            "required": true,
+            "description": "Nome dell'azienda da interrogare (es. ENEL, Iren, A2A)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "categoria",
+            "in": "query",
+            "required": false,
+            "description": "Categoria del documento (default: Bilancio)",
+            "schema": {
+              "type": "string",
+              "default": "Bilancio"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Risposta contenente il testo del PDF",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "azienda": {
+                      "type": "string"
+                    },
+                    "categoria": {
+                      "type": "string"
+                    },
+                    "contenuto": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "azienda": "ENEL",
+                  "categoria": "Bilancio",
+                  "contenuto": "Contenuto testuale estratto dal PDF..."
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
