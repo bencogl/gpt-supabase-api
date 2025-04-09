@@ -15,11 +15,11 @@ TABELLA = "tabella"
 @app.route("/get_bilancio", methods=["GET"])
 def get_bilancio():
     azienda = request.args.get("azienda")
-    nome = request.args.get("nome")
-    if not azienda or not nome:
-        return jsonify({"errore": "Manca azienda o nome"}), 400
+    categoria = request.args.get("categoria", "bilancio")
+    if not azienda:
+        return jsonify({"errore": "Manca azienda"}), 400
 
-    query = supabase.table(TABELLA).select("*").eq("Azienda", azienda).eq("Nome", nome).execute()
+    query = supabase.table(tabella).select("*").eq("Azienda", azienda).eq("categoria", categoria).execute()
     if not query.data:
         return jsonify({"errore": "Documento non trovato"}), 404
 
@@ -37,7 +37,7 @@ def get_bilancio():
 
     return jsonify({
         "azienda": azienda,
-        "nome": nome,
+        "categoria": categoria,
         "contenuto": testo[:4000]
     })
 
