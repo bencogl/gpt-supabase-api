@@ -29,13 +29,11 @@ def get_bilancio():
         if not query.data:
             return jsonify({"errore": "Documento non trovato"}), 404
 
-        file_info = query.data[0]
         file_path = file_info["path"]
         print(f"[DEBUG] path del file: {file_path}")
-
-        # Rimuove il prefisso \"benchbila/\" se presente
-        clean_path = file_path.replace(\"benchbila/\", \"\")
+        clean_path = file_path.replace("benchbila/", "")
         file_data = supabase.storage.from_(BUCKET).download(clean_path)
+
 
 
         with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp:
