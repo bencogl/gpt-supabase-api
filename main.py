@@ -29,10 +29,16 @@ def get_bilancio():
         if not query.data:
             return jsonify({"errore": "Documento non trovato"}), 404
 
-        file_path = file_info["path"]
-        print(f"[DEBUG] path del file: {file_path}")
-        clean_path = file_path.replace("benchbila/", "")
+        file_info = query.data[0]
+        original_path = file_info["path"]
+        print(f"[DEBUG] path del file nel DB: {original_path}")
+
+        # Rimuove il prefisso \"benchbila/\" se presente
+        clean_path = original_path.replace("benchbila/", "")
+        print(f"[DEBUG] path corretto usato per il download: {clean_path}")
+
         file_data = supabase.storage.from_(BUCKET).download(clean_path)
+
 
 
 
